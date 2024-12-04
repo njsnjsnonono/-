@@ -1,0 +1,24 @@
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+
+int main(){
+    char num[31];
+    int base;
+    scanf("%s %d", num, &base);
+    int len = strlen(num);
+    int result = 0;
+    
+    for (int i = 0; i < len; i++){
+        int value;
+        if( num[i] >= '0' && num [i] <= '9'){
+            value = num[i] - '0';
+        }
+        else{
+            value = num[i] - 'A' + 10;
+        }
+        result += value*pow(base, len - i-1);
+    }
+    printf("%d\n", result);
+    return 0;
+}
