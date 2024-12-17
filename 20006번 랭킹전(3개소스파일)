@@ -1,0 +1,31 @@
+// main.c
+#include "room_manager.h"
+#include "player_manager.h"
+#include "output_manager.h"
+
+#define MAX_PLAYERS 300
+#define MAX_NAME_LENGTH 16
+#define MAX_ROOMS 300
+
+Room rooms[MAX_ROOMS];
+int room_count = 0;
+
+int main() {
+    int P, M; // 플레이어 수와 방 최대 정원
+    scanf("%d %d", &P, &M);
+
+    for (int i = 0; i < P; i++) {
+        int level;
+        char nickname[MAX_NAME_LENGTH];
+        scanf("%d %s", &level, nickname);
+        add_player_to_room(rooms, &room_count, level, nickname, M);
+    }
+
+    for (int i = 0; i < room_count; i++) {
+        sort_players_in_room(rooms[i].players, rooms[i].player_count);
+        print_room_status(rooms[i], M);
+        print_room_players(rooms[i]);
+    }
+
+    return 0;
+}
