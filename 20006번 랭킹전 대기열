@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define MAX_PLAYERS 300
+#define MAX_NAME_LENGTH 16
+#define MAX_ROOMS 300
+
+typedef struct {
+    int level;
+    char nickname[MAX_NAME_LENGTH];
+} Player;
+
+typedef struct {
+    int base_level;
+    int player_count;
+    Player players[MAX_PLAYERS];
+} Room;
+
+Room rooms[MAX_ROOMS];
+int room_count = 0;
+
+int compare_players(const void *a, const void *b) {
+    return strcmp(((Player *)a)->nickname, ((Player *)b)->nickname);
+}
+
+void add_player_to_room(int level, char *nickname, int max_players) {
+    for (int i = 0; i < room_count; i++) {
+        if (rooms[i].player_count < max_players && 
+            abs(rooms[i].base_level - level) <= 10) {
+            rooms[i].players[rooms[i].player_count].level = level;
+            strcpy(rooms[i].players[rooms[i].player_count].nickname, nickname);
+            rooms[i].player_count++;
+            return;
+        }
+    }
+
+    rooms[room_count].base_level = level;
+    rooms[room_count].player_count = 1;
+    rooms[room_count].players[0].level = level;
+    strcpy(rooms[room_count].players[0].nickname, nickname);
+    room_count++;
+}
+
+int main() {
+    int P, M; 
+    scanf("%d %d", &P, &M);
+
+    for (int i = 0; i < P; i++) {
+        int level;
+        char nickname[MAX_NAME_LENGTH];
+        scanf("%d %s", &level, nickname);
+        add_player_to_room(level, nickname, M);
+    }
+
+    for (int i = 0; i < room_count; i++) {
+        qsort(rooms[i].players, rooms[i].player_count, sizeof(Player), compare_players);
+
+        if (rooms[i].player_count == M) {
+            printf("Started!\n");
+        } else {
+            printf("Waiting!\n");
+        }
+
+        for (int j = 0; j < rooms[i].player_count; j++) {
+            printf("%d %s\n", rooms[i].players[j].level, rooms[i].players[j].nickname);
+        }
+    }
+
+    return 0;
+}
