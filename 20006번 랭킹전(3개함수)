@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define MAX_PLAYERS 300
+#define MAX_NAME_LENGTH 16
+#define MAX_ROOMS 300
+
+typedef struct {
+    int level;
+    char nickname[MAX_NAME_LENGTH];
+} Player;
+
+typedef struct {
+    int base_level;
+    int player_count;
+    Player players[MAX_PLAYERS];
+} Room;
+
+Room rooms[MAX_ROOMS];
+int room_count = 0;
+
+// 닉네임 사전 순 정렬을 위한 비교 함수
+int compare_players(const void *a, const void *b) {
+    return strcmp(((Player *)a)->nickname, ((Player *)b)->nickname);
+}
+
+// 방에 플레이어를 추가하는 함수
+void add_player_to_room(int level, char *nickname, int max_players) {
+    for (int i = 0; i < room_count; i++) {
+        // 방 조건: 레벨 범위 만족 & 방 정원 초과 X
+        if (rooms[i].player_count < max_players && 
+            abs(rooms[i].base_level - level) <= 10) {
+            rooms[i].players[rooms[i].player_count].level = level;
+            strcpy(rooms[i].players[rooms[i].player_count].nickname, nickname);
+            rooms[i].player_count++;
+            return;
+        }
+    }
+
+    // 조건을 만족하는 방이 없으면 새 방 생성
+    rooms[room_count].base_level = level;
+    rooms[room_count].player_count = 1;
+    rooms[room_count].players[0].level = level;
+    strcpy(rooms[room_count].players[0].nickname, nickname);
+    room_count++;
+}
+
+// 방의 상태를 출력하는 함수
+void print_room_status(int room_index, int max_players) {
+    if (rooms[room_index].player_count == max_players) {
+        printf("Started!\n");
+    } else {
+        printf("Waiting!\n");
+    }
+}
+
+// 방에 있는 플레이어 정보를 출력하는 함수
+void print_room_players(int room_index) {
+    for (int j = 0; j < rooms[room_index].player_count; j++) {
+        printf("%d %s\n", rooms[room_index].players[j].level, rooms[room_index].players[j].nickname);
+    }
+}
+
+int main() {
+    int P, M; // 플레이어 수와 방 최대 정원
+    scanf("%d %d", &P, &M);
+
+    for (int i = 0; i < P; i++) {
+        int level;
+        char nickname[MAX_NAME_LENGTH];
+        scanf("%d %s", &level, nickname);
+        add_player_to_room(level, nickname, M);
+    }
+
+    for (int i = 0; i < room_count; i++) {
+        // 닉네임 사전 순 정렬
+        qsort(rooms[i].players, rooms[i].player_count, sizeof(Player), compare_players);
+        
+        // 방 상태와 플레이어 목록 출력
+        print_room_status(i, M);
+        print_room_players(i);
+    }
+
+    return 0;
+}
